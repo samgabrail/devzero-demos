@@ -1,0 +1,28 @@
+version: "3"
+build:
+  steps:
+    - type: apt-get
+      packages: ["apt-transport-https", "build-essential", "ca-certificates", "curl", "git", "nano", "software-properties-common", "ssh", "sudo", "tar", "unzip", "vim", "wget", "zip"]
+    - type: git-clone
+      url: https://github.com/GoogleCloudPlatform/microservices-demo
+    - type: command
+      command: |
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && rm kubectl
+    - type: command
+      command: |
+        curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && \
+        sudo install skaffold /usr/local/bin/
+    - type: apt-get
+      packages: ["docker-ce", "docker-ce-cli", "containerd.io"]
+      extra_repositories:
+        - key_url: https://download.docker.com/linux/ubuntu/gpg
+          repository: https://download.docker.com/linux/ubuntu
+          components: []
+          distribution: ""
+    - type: command
+      command: |
+        usermod -aG docker devzero
+        systemctl enable docker.service
+        systemctl enable containerd.service
+      user: root
