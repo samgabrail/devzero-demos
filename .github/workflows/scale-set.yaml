@@ -1,8 +1,11 @@
 name: Actions Runner Controller Demo
 on: 
   workflow_dispatch
+
 jobs:
   Explore-GitHub-Actions-Arc:
     runs-on: dz-arc-controller
+    container:
+      image: ubuntu:latest
     steps:
     - run: echo "🎉 This job uses runner scale set runners!"
