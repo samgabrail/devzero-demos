@@ -1,5 +1,6 @@
-name: Actions Demo
-on: workflow_dispatch
+name: Self-hosted Actions Demo
+on: 
+  workflow_dispatch:
 jobs:
   Explore-GitHub-Actions:
     runs-on: self-hosted
