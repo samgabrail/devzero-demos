@@ -6,8 +6,11 @@ This is a repo demoing DevZero.
 
 ## Demo 2 - Enhancing Microservices Development with DevZero
 
+This demo is based on this tutorial below:
+https://www.devzero.io/docs/workspaces/kubernetes-cluster#tutorial-steps
+
 ### Objective
-Explore how DevZero supports teams building on microservices, providing upstream and downstream connections.
+Explore how DevZero supports teams building on microservices.
 
 ### Key Points
 - Overview of the challenges in microservices development.
@@ -23,7 +26,6 @@ To get the workspace name
 ```bash
 dz workspace ls
 ```
-
 
 To write the config to the default Kubernetes configuration location, run
 ```bash
