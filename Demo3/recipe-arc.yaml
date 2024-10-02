@@ -18,7 +18,7 @@ build:
 launch:
   environment:
     - name: INSTALLATION_NAME
-      value: "dz-arc-controller"
+      value: "dz-arc-controller-example"
     - name: NAMESPACE
       value: "dz-arc-systems"
     - name: GITHUB_CONFIG_URL

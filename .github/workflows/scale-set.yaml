@@ -4,7 +4,7 @@ on:
 
 jobs:
   Explore-GitHub-Actions-Arc:
-    runs-on: dz-arc-controller
+    runs-on: dz-arc-controller-example
     container:
       image: ubuntu:latest
     steps:
