@@ -1,0 +1,54 @@
+version: "3"
+build:
+  steps:
+    - type: apt-get
+      packages: [
+        "build-essential",    # Includes g++, make, and essential build tools
+        "cmake",             # Modern C++ build system
+        "gdb",              # Debugger
+        "curl",
+        "clang",            # Alternative compiler
+        "clang-format",     # Code formatter
+        "valgrind",         # Memory checker
+        "apt-transport-https", # Required for Bazel installation
+        "gnupg"             # Required for Bazel installation
+      ]
+    # Install Bazel
+    - type: command
+      command: |
+        curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel.gpg
+        sudo mv bazel.gpg /etc/apt/trusted.gpg.d/
+        echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
+        sudo apt update
+        sudo apt install -y bazel
+      user: devzero
+    - type: command
+      command: sudo rm /etc/update-motd.d/**
+    - type: file
+      content: |
+        #include <iostream>
+
+        int main(int argc, char *argv[])
+        {
+          std::cout << "Hello, World!" << std::endl;
+        }
+      path: /home/devzero/main.cc
+      permissions: "0664"
+      user: devzero
+    - type: file
+      content: |
+        cc_binary(
+            name = "main",
+            srcs = ["main.cc"],
+        )
+      path: /home/devzero/BUILD
+      permissions: "0664"
+      user: devzero
+    - type: file
+      content: ""
+      path: /home/devzero/WORKSPACE
+      permissions: "0664"
+      user: devzero
+    - type: command
+      command: |
+        printf 'echo "\n👋 Welcome to the DevZero C++ Starter Template! This workspace includes essential C++ development tools including Bazel, g++, cmake, and debugging tools.\n\n🤘 To get started in this workspace you can:\n- Build and run with Bazel: bazel run :main\n- Try remote execution: bazel build --remote_executor=grpc://localhost:8980 :main\n- Try remote caching: bazel build --remote_cache=grpc://localhost:8980 :main\n\nThe best way to leverage DevZero is to write your own recipes. You can add your repositories and configure the workspace to mirror your production environments. Here is how to get started: https://docs.devzero.io/product-docs/recipes/create-recipe\n"' >> /home/devzero/.bashrc

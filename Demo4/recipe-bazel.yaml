@@ -24,6 +24,26 @@ build:
         ./get_helm.sh
         rm get_helm.sh
       user: devzero
+    - type: command
+      command: |
+        sudo git clone https://github.com/ahmetb/kubectx /opt/kubectx
+        sudo ln -s /opt/kubectx/kubectx /usr/local/bin/kubectx
+        sudo ln -s /opt/kubectx/kubens /usr/local/bin/kubens
+      user: devzero
+    - type: command
+      command: |
+        cat >> /home/devzero/.bashrc << 'EOF'
+
+        # kubectl aliases
+        alias k='kubectl'
+        alias kd='kubectl describe'
+        alias kdel='kubectl delete'
+        alias kg='kubectl get'
+        alias kga='kubectl get all'
+        alias kgn='kubectl get po --all-namespaces'
+
+        EOF
+      user: devzero
 
 launch:
   steps:
