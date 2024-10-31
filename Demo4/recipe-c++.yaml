@@ -44,10 +44,8 @@ build:
       path: /home/devzero/BUILD
       permissions: "0664"
       user: devzero
-    - type: file
-      content: ""
-      path: /home/devzero/WORKSPACE
-      permissions: "0664"
+    - type: command
+      command: touch /home/devzero/WORKSPACE
       user: devzero
     - type: command
       command: |
