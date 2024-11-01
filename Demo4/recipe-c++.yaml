@@ -47,6 +47,21 @@ build:
     - type: command
       command: touch /home/devzero/WORKSPACE
       user: devzero
+    - type: file
+      content: |
+        # Remote execution and caching configuration
+        build:remote --remote_executor=grpc://atomic-sparrow-jjoh:8980
+        build:remote --remote_cache=grpc://atomic-sparrow-jjoh:8980
+        
+        # Default to use both remote execution and caching
+        build --config=remote
+        
+        # General build settings
+        build --incompatible_enable_cc_toolchain_resolution=false
+        build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=0
+      path: /home/devzero/.bazelrc
+      permissions: "0664"
+      user: devzero
     - type: command
       command: |
-        printf 'echo "\n👋 Welcome to the DevZero C++ Starter Template! This workspace includes essential C++ development tools including Bazel, g++, cmake, and debugging tools.\n\n🤘 To get started in this workspace you can:\n- Build and run with Bazel: bazel run :main\n- Try remote execution: bazel build --remote_executor=grpc://localhost:8980 :main\n- Try remote caching: bazel build --remote_cache=grpc://localhost:8980 :main\n\nThe best way to leverage DevZero is to write your own recipes. You can add your repositories and configure the workspace to mirror your production environments. Here is how to get started: https://docs.devzero.io/product-docs/recipes/create-recipe\n"' >> /home/devzero/.bashrc
+        printf 'echo "\n👋 Welcome to the DevZero C++ Starter Template! This workspace includes essential C++ development tools including Bazel, g++, cmake, and debugging tools.\n\n🤘 To get started in this workspace you can:\n- Build with Bazel: bazel build :main\n- Build and run: bazel run :main\n\nRemote execution and caching are configured by default via .bazelrc\n\nThe best way to leverage DevZero is to write your own recipes. You can add your repositories and configure the workspace to mirror your production environments. Here is how to get started: https://docs.devzero.io/product-docs/recipes/create-recipe\n"' >> /home/devzero/.bashrc

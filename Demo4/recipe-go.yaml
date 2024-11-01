@@ -1,0 +1,86 @@
+# DevZero recipe for Go with Bazel remote execution
+version: "3"
+build:
+  steps:
+    - type: apt-get
+      packages: ["wget", "curl", "git", "build-essential"]
+    # Install Go
+    - type: command
+      command: |
+        wget -q https://go.dev/dl/go1.22.2.linux-amd64.tar.gz
+        tar -C /usr/local -xzf go1.22.2.linux-amd64.tar.gz
+        rm -rf go1.22.2.linux-amd64.tar.gz
+        echo 'export GOPATH=/home/devzero/go' | tee /etc/profile.d/go-installation.sh
+        echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' | tee -a /etc/profile.d/go-installation.sh
+      user: root
+    # Install Bazel
+    - type: command
+      command: |
+        curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel.gpg
+        sudo mv bazel.gpg /etc/apt/trusted.gpg.d/
+        echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
+        sudo apt update
+        sudo apt install -y bazel
+      user: devzero
+    # Create main.go
+    - type: file
+      content: |
+        package main
+
+        import "fmt"
+
+        func main() {
+            fmt.Println("Hello, World!")
+        }
+      path: /home/devzero/main.go
+      permissions: "0664"
+      user: devzero
+    # Create BUILD file
+    - type: file
+      content: |
+        load("@io_bazel_rules_go//go:def.bzl", "go_binary")
+
+        go_binary(
+            name = "main",
+            srcs = ["main.go"],
+        )
+      path: /home/devzero/BUILD
+      permissions: "0664"
+      user: devzero
+    # Create WORKSPACE file
+    - type: file
+      content: |
+        load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+        http_archive(
+            name = "io_bazel_rules_go",
+            sha256 = "51dc53293afe317d2696d4d6433a4c33feedb7748a9e352072e2ec3c0dafd2c6",
+            urls = [
+                "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.40.1/rules_go-v0.40.1.zip",
+                "https://github.com/bazelbuild/rules_go/releases/download/v0.40.1/rules_go-v0.40.1.zip",
+            ],
+        )
+
+        load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
+
+        go_rules_dependencies()
+        go_register_toolchains(version = "1.20.7")
+      path: /home/devzero/WORKSPACE
+      permissions: "0664"
+      user: devzero
+    # Create .bazelrc
+    - type: file
+      content: |
+        # Remote execution and caching configuration
+        build:remote --remote_executor=grpc://atomic-sparrow-jjoh:8980
+        build:remote --remote_cache=grpc://atomic-sparrow-jjoh:8980
+        
+        # Default to use both remote execution and caching
+        build --config=remote
+      path: /home/devzero/.bazelrc
+      permissions: "0664"
+      user: devzero
+    # Update welcome message
+    - type: command
+      command: |
+        printf 'echo "\n👋 Welcome to the DevZero Go with Bazel Remote Execution Template!\n\n🤘 To get started in this workspace you can:\n- Build with Bazel: bazel build :main\n- Build and run: bazel run :main\n\nRemote execution and caching are configured by default via .bazelrc\n\nThe best way to leverage DevZero is to write your own recipes. You can add your repositories and configure the workspace to mirror your production environments. Here is how to get started: https://docs.devzero.io/product-docs/recipes/create-recipe\n"' >> /home/devzero/.bashrc
