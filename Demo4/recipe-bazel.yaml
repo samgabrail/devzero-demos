@@ -30,6 +30,59 @@ build:
         sudo ln -s /opt/kubectx/kubectx /usr/local/bin/kubectx
         sudo ln -s /opt/kubectx/kubens /usr/local/bin/kubens
       user: devzero
+    - type: file
+      content: |
+        config:
+          digestFunction: SHA256
+          defaultActionTimeout: 3600
+          maximumActionTimeout: 7200
+          maxEntrySizeBytes: "4294967296"  # 4GB
+          prometheusPort: 9090
+          backplane:
+            queues:
+              - name: "cpu"
+                allowUnmatched: true
+                properties:
+                  - name: "min-cores"
+                    value: "*"
+                  - name: "max-cores"
+                    value: "*"
+          server:
+            name: "shard"
+            recordBesEvents: true
+            bytestreamTimeout: 7200
+            casWriteTimeout: 7200
+          worker:
+            port: 8982
+
+        server:
+          image:
+            repository: docker.io/bazelbuild/buildfarm-server
+          resources:
+            limits:
+              memory: 4Gi
+              cpu: "2"
+            requests:
+              memory: 2Gi
+              cpu: "1"
+          replicaCount: 1
+
+        shardWorker:
+          image:
+            repository: docker.io/bazelbuild/buildfarm-worker
+          resources:
+            limits:
+              memory: 4Gi
+              cpu: "2"
+            requests:
+              memory: 2Gi
+              cpu: "1"
+          replicaCount: 2
+          storage:
+            size: 50Gi
+      path: /home/devzero/custom-values.yaml
+      permissions: "0664"
+      user: devzero
     - type: command
       command: |
         cat >> /home/devzero/.bashrc << 'EOF'
@@ -54,9 +107,11 @@ launch:
           --create-namespace \
           bazel-buildfarm \
           oci://ghcr.io/ellie-idb/buildfarm \
-          --set server.image.repository=docker.io/bazelbuild/buildfarm-server \
-          --set shardWorker.image.repository=docker.io/bazelbuild/buildfarm-worker \
+          -f /home/devzero/custom-values.yaml \
           --version "0.2.6"
+    - type: command
+      command: |
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=server -n bazel-buildfarm --timeout=300s
     - type: command
       command: |
         kubectl port-forward service/bazel-buildfarm-server -n bazel-buildfarm 8980:8980 --address 0.0.0.0 &

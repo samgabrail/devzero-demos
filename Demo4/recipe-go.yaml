@@ -74,7 +74,11 @@ build:
         # Remote execution and caching configuration
         build:remote --remote_executor=grpc://atomic-sparrow-jjoh:8980
         build:remote --remote_cache=grpc://atomic-sparrow-jjoh:8980
-        
+
+        # Increase timeouts
+        build:remote --remote_timeout=3600
+        build:remote --remote_upload_local_results
+
         # Default to use both remote execution and caching
         build --config=remote
       path: /home/devzero/.bazelrc
