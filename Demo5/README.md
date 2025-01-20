@@ -66,7 +66,7 @@ monitor_thread = threading.Thread(target=rf_model.fit, args=(X_train, y_train))
 monitor_thread.start()
 
 # Remove the length limit and only stop when training is done
-while monitor_thread.is_alive():  # Removed len(time_history) < 100 condition
+while monitor_thread.is_alive():
     current_time = time.time() - start_time
     cpu_percent = psutil.cpu_percent(interval=0.1)
     
@@ -78,8 +78,11 @@ while monitor_thread.is_alive():  # Removed len(time_history) < 100 condition
     time.sleep(0.2)
 
 monitor_thread.join()
+total_time = time_history[-1]
+minutes = int(total_time // 60)
+seconds = int(total_time % 60)
 print("Training completed!")
-print(f"Total training time: {time_history[-1]:.2f} seconds")
+print(f"Total training time: {minutes}m {seconds}s")
 ```
 
 ### Running the notebook
