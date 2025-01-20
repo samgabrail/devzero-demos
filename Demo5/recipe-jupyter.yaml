@@ -1,0 +1,30 @@
+version: "3"
+build:
+  steps:
+    - type: apt-get
+      name: |
+        Install Python using apt (Defaulting to Python 3 since no python version was detected ())
+      packages:
+        - python3
+        - python3-venv
+        - libpython3-dev
+    - type: command
+      command: |
+        python3 -m venv venv
+        . venv/bin/activate
+        curl https://bootstrap.pypa.io/get-pip.py --output get-pip.py
+        python3 get-pip.py
+        rm get-pip.py
+        pip3 install notebook numpy pandas scikit-learn matplotlib psutil
+      user: devzero
+
+launch:
+  environment:
+    - name: PORT
+      value: "8888"
+  steps:
+    - type: command
+      command: |
+        . venv/bin/activate
+        nohup jupyter notebook --ip 0.0.0.0 --no-browser --NotebookApp.token='' >jupyter.log 2>&1 &
+      user: devzero
